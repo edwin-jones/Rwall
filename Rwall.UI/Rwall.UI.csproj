@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Elegantthemes-Beautiful-Flat-One-Color-Computer.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Elegantthemes-Beautiful-Flat-One-Color-Computer.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -103,13 +103,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Position-Relative-Social-1-Reddit.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Elegantthemes-Beautiful-Flat-One-Color-Frames.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Elegantthemes-Beautiful-Flat-One-Color-Computer.ico" />
+    <Resource Include="Resources\Elegantthemes-Beautiful-Flat-One-Color-Computer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
