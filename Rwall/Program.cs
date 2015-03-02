@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Rwall.Shared;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Security;
+//using Rwall.Shared;
 
 namespace Rwall
 {
@@ -44,6 +46,7 @@ namespace Rwall
             {
                 byte.TryParse(args[1], out style);
             }
+
             Uri latestWallpaperURL = Wallpaper.GetLatestWallpaperURL(text);
             if (latestWallpaperURL != null)
             {
