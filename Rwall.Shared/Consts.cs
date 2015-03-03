@@ -10,7 +10,7 @@ namespace Rwall.Shared
     {
         public const String AppName = "Rwall";
 
-        public const String DefaultSubreddit = "Wallpapers";
+        public const String DefaultSubreddit = "Wallpaper";
 
         public const Int32 DefaultPictureWidth = 256;
 
