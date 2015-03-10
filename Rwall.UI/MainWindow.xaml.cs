@@ -15,34 +15,109 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Rwall.UI
+namespace Rwall
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>
+        /// CTOR
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
 
-            var pictureUris = Wallpaper.GetLatestWallpaperURLs(Consts.DefaultSubreddit);
+            //set wallpaperstyle combobox items and select the first/default value. We reverse the order so the 'stretched' value is first in the list.
+            WallpaperStyleComboBox.ItemsSource = Enum.GetValues(typeof(Wallpaper.Style)).Cast<Wallpaper.Style>().OrderByDescending(e => e);
 
-            MenuItem wallpaperSetMenuItem = new MenuItem();
-            wallpaperSetMenuItem.Header = "Set This As Wallpaper";
-            wallpaperSetMenuItem.Click += (obj, args) =>
+            WallpaperStyleComboBox.SelectedIndex = 0;
+
+            GetWallpapersAsync(Consts.DefaultSubreddit);
+          
+        }
+
+        /// <summary>
+        /// This method is triggered whenever the size of the main window changes, and resizes wallpaper images.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_SizeChanged(object sender, EventArgs e)
+        {
+
+            //get the screen object so we can size pictures properly if the window is maximized
+            var screen = GetScreen(this);
+
+            //resize wallpapers for the correct window size
+            foreach(Image childImg in WallPaperWrapPanel.Children)
+            {
+                childImg.Width = this.Width / Consts.WallpaperColumnSize;
+                childImg.Height = this.Height / Consts.WallpaperColumnSize;
+
+                if(this.WindowState == WindowState.Maximized)
                 {
-                    var menuItem = obj as MenuItem;
-                    var cMenu = menuItem.Parent as ContextMenu;
-                    var img = cMenu.PlacementTarget as Image;
-                    var source = img.Source as BitmapImage;
-                    Wallpaper.Set(source, Wallpaper.Style.Stretched);
-                    //var uri = ((Image)obj.ContextMenu.Parent);
-                };
+                    childImg.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
+                    childImg.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
+                }
+            }
+        }
 
+        /// <summary>
+        /// This helper function uses winforms methods to get an object that fully details the screen the current window is active on.
+        /// </summary>
+        /// <param name="window"></param>
+        /// <returns></returns>
+        public static System.Windows.Forms.Screen GetScreen(Window window)
+        {
+            return System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(window).Handle);
+        }
 
-            var contextMenu = new ContextMenu();
-            contextMenu.Items.Add(wallpaperSetMenuItem);
+        /// <summary>
+        /// This method runs when the go button is clicked, and triggers a load of wallpapers from the given subreddit.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnGoButtonClick(object sender, RoutedEventArgs e)
+        {
+            GetWallpapersAsync(SubredditNameTextBox.Text);
+        }
+
+        /// <summary>
+        /// This function get's a list of wallpaper URIs from the given subreddit.
+        /// </summary>
+        /// <param name="subReddit"></param>
+        /// <returns></returns>
+        private List<Uri> GetWallpaperUris(String subReddit)
+        {
+            var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit);
+
+            if (wallpaperUris.Count < 1)
+            {
+                MessageBox.Show(Consts.NoWallpapersFoundErrorMessage, Consts.AppErrorMessageTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+            return wallpaperUris;
+        }
+
+        /// <summary>
+        /// Async wrapper around GetWallpapers.
+        /// </summary>
+        /// <param name="subReddit"></param>
+        private async void GetWallpapersAsync(String subReddit)
+        {
+            //make sure the subreddit name is shown if we get from something other than user input.
+            SubredditNameTextBox.Text = subReddit;
+
+            //flush out all old wallpapers.
+            WallPaperWrapPanel.Children.Clear();
+
+            List<Uri> pictureUris = new List<Uri>();
+
+            await Task.Run(() => pictureUris = GetWallpaperUris(subReddit));
+
+            //get the screen object so we can size pictures properly if the window is maximized
+            var screen = GetScreen(this);
 
             foreach (var uri in pictureUris.Take(20)) //we only want to use x pictures at a time.
             {
@@ -55,42 +130,23 @@ namespace Rwall.UI
 
                 image.Margin = new Thickness(10);
                 image.Source = src;
-                image.Width = this.Width /  6;
-                image.Height = this.Height / 6;
-                image.ContextMenu = contextMenu;
-                image.MouseLeftButtonDown += (obj, args) => { Wallpaper.Set((BitmapImage)image.Source, Wallpaper.Style.Stretched); };
 
-                //image.ToolTip = String.Format("Width: {0}px Height: {1}px", image.Source.Width, image.Source.Height);
+                //resize wallpapers for the correct window size
+                image.Width = this.Width / Consts.WallpaperColumnSize;
+                image.Height = this.Height / Consts.WallpaperColumnSize;
+
+                if (this.WindowState == WindowState.Maximized)
+                {
+                    image.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
+                    image.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
+                }
+
+
+                //make sure the wallpaper will be set with the correct style if clicked.
+                image.MouseLeftButtonDown += (obj, args) => { Wallpaper.Set(src, (Wallpaper.Style)WallpaperStyleComboBox.SelectedItem); };
 
                 WallPaperWrapPanel.Children.Add(image);
-
-                //WallpaperStackPanel.Children.Add(image);
             }
         }
-
-        private void Window_SizeChanged(object sender, EventArgs e)
-        {
-            var screen = GetScreen(this);
-
-
-            foreach(Image childImg in WallPaperWrapPanel.Children)
-            {
-                childImg.Width = this.Width / 6;
-                childImg.Height = this.Height / 6;
-
-                if(this.WindowState == WindowState.Maximized)
-                {
-                    childImg.Width = screen.WorkingArea.Width / 6;
-                    childImg.Height = screen.WorkingArea.Height / 6;
-                }
-            }
-        }
-
-        public static System.Windows.Forms.Screen GetScreen(Window window)
-        {
-            return System.Windows.Forms.Screen.FromHandle(new WindowInteropHelper(window).Handle);
-        }
-
-
     }
 }
