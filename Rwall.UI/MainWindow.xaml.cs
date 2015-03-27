@@ -2,19 +2,16 @@
 using Rwall.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Rwall
 {
@@ -98,7 +95,42 @@ namespace Rwall
                 MessageBox.Show(Consts.NoWallpapersFoundErrorMessage, Consts.AppErrorMessageTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
-            return wallpaperUris;
+            return wallpaperUris.Take(20).ToList();
+        }
+
+        private List<BitmapImage> GetImages(List<Uri> pictureUris, System.Windows.Forms.Screen screen)
+        {
+
+            List<BitmapImage> results = new List<BitmapImage>();
+
+            foreach (var uri in pictureUris) //we only want to use x pictures at a time.
+            {
+                
+                BitmapImage src = new BitmapImage(uri);
+                results.Add(src);
+            }
+
+            return results;
+        }
+
+        private async Task<ImageSource> LoadImageSourceAsync(string address)
+        {
+            ImageSource imgSource = null;
+
+            try
+            {
+                MemoryStream ms = new MemoryStream(await new WebClient().DownloadDataTaskAsync(new Uri(address)));
+                ImageSourceConverter imageSourceConverter = new ImageSourceConverter();
+                imgSource = (ImageSource)imageSourceConverter.ConvertFrom(ms);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.StackTrace);
+            }
+
+            return imgSource;
         }
 
         /// <summary>
@@ -114,25 +146,20 @@ namespace Rwall
             WallPaperWrapPanel.Children.Clear();
 
             List<Uri> pictureUris = new List<Uri>();
-
-            await Task.Run(() => pictureUris = GetWallpaperUris(subReddit));
+            List<BitmapImage> pictureBitmaps = new List<BitmapImage>();
 
             //get the screen object so we can size pictures properly if the window is maximized
             var screen = GetScreen(this);
 
-            foreach (var uri in pictureUris.Take(20)) //we only want to use x pictures at a time.
+            await Task.Run(() => pictureUris = GetWallpaperUris(subReddit));
+            //await Task.Run(() => pictureBitmaps = GetImages(pictureUris, screen));
+
+            foreach (var pictureSource in pictureUris) //we only want to use x pictures at a time.
             {
                 var wallpaperControl = new WallpaperControl();
-                BitmapImage src = new BitmapImage();
-                src.BeginInit();
-                src.UriSource = uri;
-                src.CacheOption = BitmapCacheOption.OnLoad;
-                src.EndInit();
 
                 wallpaperControl.Margin = new Thickness(10);
-                wallpaperControl.Image.Source = src;
-                wallpaperControl.SnapsToDevicePixels = true;
-                wallpaperControl.UseLayoutRounding = true;
+                wallpaperControl.ImageSourceURI = pictureSource.ToString();
 
                 //resize wallpapers for the correct window size
                 wallpaperControl.Width = this.Width / Consts.WallpaperColumnSize;
@@ -145,6 +172,12 @@ namespace Rwall
                 }
 
                 WallPaperWrapPanel.Children.Add(wallpaperControl);
+            } 
+   
+            for(int i=0; i< pictureUris.Count(); i++)
+            {
+                var wallpaperControl = WallPaperWrapPanel.Children[i] as WallpaperControl;
+                wallpaperControl.Image.Source = await LoadImageSourceAsync(pictureUris[i].ToString());
             }
         }
     }

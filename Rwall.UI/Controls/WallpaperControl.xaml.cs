@@ -1,21 +1,11 @@
 ﻿using Rwall.Shared;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Rwall.Controls
 {
@@ -24,6 +14,8 @@ namespace Rwall.Controls
     /// </summary>
     public partial class WallpaperControl : UserControl
     {
+        public String ImageSourceURI { get; set; }
+
         DropShadowEffect m_dropShadowEffect = new DropShadowEffect();
 
         public WallpaperControl()
@@ -55,7 +47,7 @@ namespace Rwall.Controls
                  {
                      Uri uri = new Uri(imageSource as String);
                      Wallpaper.Set(uri, (Wallpaper.Style.Stretched));
-                 },  Image.Source.ToString()
+                 },  ImageSourceURI
              );
         }
     }
