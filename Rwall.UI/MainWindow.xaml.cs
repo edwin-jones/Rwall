@@ -1,4 +1,5 @@
-﻿using Rwall.Shared;
+﻿using Rwall.Controls;
+using Rwall.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,15 +51,15 @@ namespace Rwall
             var screen = GetScreen(this);
 
             //resize wallpapers for the correct window size
-            foreach(Image childImg in WallPaperWrapPanel.Children)
+            foreach(WallpaperControl childWallpaperControl in WallPaperWrapPanel.Children)
             {
-                childImg.Width = this.Width / Consts.WallpaperColumnSize;
-                childImg.Height = this.Height / Consts.WallpaperColumnSize;
+                childWallpaperControl.Width = this.Width / Consts.WallpaperColumnSize;
+                childWallpaperControl.Height = this.Height / Consts.WallpaperColumnSize;
 
                 if(this.WindowState == WindowState.Maximized)
                 {
-                    childImg.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
-                    childImg.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
+                    childWallpaperControl.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
+                    childWallpaperControl.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
                 }
             }
         }
@@ -121,31 +122,29 @@ namespace Rwall
 
             foreach (var uri in pictureUris.Take(20)) //we only want to use x pictures at a time.
             {
-                var image = new Image();
+                var wallpaperControl = new WallpaperControl();
                 BitmapImage src = new BitmapImage();
                 src.BeginInit();
                 src.UriSource = uri;
                 src.CacheOption = BitmapCacheOption.OnLoad;
                 src.EndInit();
 
-                image.Margin = new Thickness(10);
-                image.Source = src;
+                wallpaperControl.Margin = new Thickness(10);
+                wallpaperControl.Image.Source = src;
+                wallpaperControl.SnapsToDevicePixels = true;
+                wallpaperControl.UseLayoutRounding = true;
 
                 //resize wallpapers for the correct window size
-                image.Width = this.Width / Consts.WallpaperColumnSize;
-                image.Height = this.Height / Consts.WallpaperColumnSize;
+                wallpaperControl.Width = this.Width / Consts.WallpaperColumnSize;
+                wallpaperControl.Height = this.Height / Consts.WallpaperColumnSize;
 
                 if (this.WindowState == WindowState.Maximized)
                 {
-                    image.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
-                    image.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
+                    wallpaperControl.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
+                    wallpaperControl.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
                 }
 
-
-                //make sure the wallpaper will be set with the correct style if clicked.
-                image.MouseLeftButtonDown += (obj, args) => { Wallpaper.Set(src, (Wallpaper.Style)WallpaperStyleComboBox.SelectedItem); };
-
-                WallPaperWrapPanel.Children.Add(image);
+                WallPaperWrapPanel.Children.Add(wallpaperControl);
             }
         }
     }

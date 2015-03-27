@@ -188,7 +188,7 @@ namespace Rwall.Shared
         {
             string address = string.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
             List<string> pictureUrlList = new List<string>();
-            Uri result;
+            //Uri result;
             try
             {
                 string text = new WebClient().DownloadString(address);
@@ -224,9 +224,17 @@ namespace Rwall.Shared
             {
 
             }
-            catch (System.Net.WebException ex) //catch 503 errors.
+            catch (System.Net.WebException wex) //catch http errors.
             {
-
+                if (wex.Status == WebExceptionStatus.ProtocolError)
+                {
+                    String errorMessage = String.Format("Web Request Returned Error Code : {0}", ((HttpWebResponse)wex.Response).StatusCode);
+                    System.Windows.MessageBox.Show(Consts.AppErrorMessageTitle, errorMessage, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
+                }
+                else //this isn't an http error, something else should handle this.
+                {
+                    throw wex;
+                }
             }
 
             return pictureUrlList.Select(pic => new Uri(pic)).ToList();
