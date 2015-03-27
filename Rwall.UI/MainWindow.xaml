@@ -3,48 +3,41 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:Shared="clr-namespace:Rwall.Shared"
-        xmlns:Controls="clr-namespace:Rwall.Controls"
         Title="Rwall" 
         Height="768" Width="1024" 
         MinHeight="768" MinWidth="1024"
-        SizeChanged="Window_SizeChanged"
-        WindowStartupLocation="CenterScreen">
+        SizeChanged="Window_SizeChanged">
     <Window.Background>
         <RadialGradientBrush GradientOrigin="0.5,0.5">
             <GradientStop Color="DarkGray" Offset="0.0" />
             <GradientStop Color="Gray" Offset="1" />
         </RadialGradientBrush>
     </Window.Background>
-    <Window.Resources>
-        
-    </Window.Resources>
 
     <Grid x:Name="MainGrid">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" >
-            <Rectangle Height="10"/>
-            
             <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Click on an image to set it as your wallpaper with the selected settings.</TextBlock>
             <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Use the textbox below to search different subreddits.</TextBlock>
-
-            <Rectangle Height="10"/>
-
+            
+            <Rectangle Height="10"/>  
+            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <TextBox Name="SubredditNameTextBox" HorizontalAlignment="Center" Width="300"/>
-                <Rectangle Width="10" />
-                <Button HorizontalAlignment="Center" Content="Go" Width="50" Click="OnGoButtonClick"/>
+                <Rectangle Width="10" /> 
+                <Button HorizontalAlignment="Center" Content="Go" Width="50" Click="OnGoButtonClick"/>     
             </StackPanel>
-
+            
             <Rectangle Height="10" />
-
+            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock FontSize="16" Foreground="White">Wallpaper Style:</TextBlock>
+                <TextBlock FontSize="16" Foreground="White">Wallpaper Style: </TextBlock>
                 <Rectangle Width="10" />
                 <ComboBox Name="WallpaperStyleComboBox" Width="100" />
             </StackPanel>
-
+            
             <Rectangle Height="20" />
-
-            <WrapPanel x:Name="WallPaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            
+            <WrapPanel x:Name="WallPaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" />
         </StackPanel>
     </Grid>
 </Window>
