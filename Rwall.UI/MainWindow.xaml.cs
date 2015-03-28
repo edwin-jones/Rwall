@@ -33,7 +33,7 @@ namespace Rwall
             WallpaperStyleComboBox.SelectedIndex = 0;
 
             GetWallpapersAsync(Consts.DefaultSubreddit);
-          
+
         }
 
         /// <summary>
@@ -48,12 +48,12 @@ namespace Rwall
             var screen = GetScreen(this);
 
             //resize wallpapers for the correct window size
-            foreach(WallpaperControl childWallpaperControl in WallPaperWrapPanel.Children)
+            foreach (WallpaperControl childWallpaperControl in WallPaperWrapPanel.Children)
             {
                 childWallpaperControl.Width = this.Width / Consts.WallpaperColumnSize;
                 childWallpaperControl.Height = this.Height / Consts.WallpaperColumnSize;
 
-                if(this.WindowState == WindowState.Maximized)
+                if (this.WindowState == WindowState.Maximized)
                 {
                     childWallpaperControl.Width = screen.WorkingArea.Width / Consts.WallpaperColumnSize;
                     childWallpaperControl.Height = screen.WorkingArea.Height / Consts.WallpaperColumnSize;
@@ -105,7 +105,7 @@ namespace Rwall
 
             foreach (var uri in pictureUris) //we only want to use x pictures at a time.
             {
-                
+
                 BitmapImage src = new BitmapImage(uri);
                 results.Add(src);
             }
@@ -117,19 +117,16 @@ namespace Rwall
         {
             ImageSource imgSource = null;
 
-            try
+            using (WebClient webClient = new WebClient())
             {
+                //no need to dispose memory stream, it is basically a byte array with no unmanaged resources.
+                //if we dispose of it too early, images using it for data will look corrupted.
                 MemoryStream ms = new MemoryStream(await new WebClient().DownloadDataTaskAsync(new Uri(address)));
                 ImageSourceConverter imageSourceConverter = new ImageSourceConverter();
                 imgSource = (ImageSource)imageSourceConverter.ConvertFrom(ms);
-
+                
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                Debug.WriteLine(ex.StackTrace);
-            }
-
+            
             return imgSource;
         }
 
@@ -172,9 +169,9 @@ namespace Rwall
                 }
 
                 WallPaperWrapPanel.Children.Add(wallpaperControl);
-            } 
-   
-            for(int i=0; i< pictureUris.Count(); i++)
+            }
+
+            for (int i = 0; i < pictureUris.Count(); i++)
             {
                 var wallpaperControl = WallPaperWrapPanel.Children[i] as WallpaperControl;
                 wallpaperControl.Image.Source = await LoadImageSourceAsync(pictureUris[i].ToString());
