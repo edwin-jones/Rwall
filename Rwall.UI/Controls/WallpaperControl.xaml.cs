@@ -1,5 +1,6 @@
 ﻿using Rwall.Shared;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -42,16 +43,16 @@ namespace Rwall.Controls
         /// <summary>
         /// This method fires when the user's cursor rolls over a wallpaper and gives it a glow to hightligh it.
         /// </summary>
-        private void Image_IsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private void ForeGround_IsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (Image.IsMouseOver)
+            if (ForegroundRectangle.IsMouseOver)
             {
-                BackingRectangle.Effect = m_dropShadowEffect;
+                BackgroundRectangle.Effect = m_dropShadowEffect;
 
             }
             else
             {
-                BackingRectangle.Effect = null;
+                BackgroundRectangle.Effect = null;
             }
         }
 
@@ -59,17 +60,27 @@ namespace Rwall.Controls
         /// <summary>
         /// This method runs when an image is clicked and changes the wallpaper of the current user.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void Image_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void ForeGround_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //extract URI from the clicked image's source so we can pass into another thread that sets the desktop background (without blocking UI).
             //We have to store arguments in local variables and pass them as arguments so we don't get cross thread access errors.
             var wallpaperUri = new Uri(FullSizeImageUrl);
             var style = MainWindow.SelectedWallpaperStyle;
 
-            //Change the wallpaper with an async call
-            await Task.Run(() => ChangeWallpaper(wallpaperUri, style));
+            try
+            {
+                //Change the wallpaper with an async call
+                await Task.Run(() => ChangeWallpaper(wallpaperUri, style));
+            }
+            catch (WebException wex) //catch http errors and send them to the main window to display.
+            {
+                MainWindow.HandleWebException(wex);
+            }
+            catch (Exception ex)//Show serious exceptions to user and then throw the error (which will probably crash the application)
+            {   
+                System.Windows.MessageBox.Show("FATAL ERROR: " + ex.ToString(), Consts.AppErrorMessageTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                throw ex;
+            }
         }
 
 
@@ -78,16 +89,7 @@ namespace Rwall.Controls
         /// </summary>
         private void ChangeWallpaper(Uri wallpaperUri, Wallpaper.Style style)
         {
-            try
-            {
-                Wallpaper.Set(wallpaperUri, style);
-            }
-            catch (Exception ex)
-            {
-                //Show exception to user and then throw the error (which will probably crash the application)
-                System.Windows.MessageBox.Show("FATAL ERROR: " + ex.ToString(), Consts.AppErrorMessageTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                throw ex;
-            }
+            Wallpaper.Set(wallpaperUri, style);
         }
     }
 }

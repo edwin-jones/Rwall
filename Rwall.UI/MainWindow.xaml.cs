@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -22,7 +23,18 @@ namespace Rwall
         /// <summary>
         /// We use this static reference so we can expose instance members globally, primarily for the SelectedWallpaperStyle property.
         /// </summary>
-        private static System.Windows.Controls.ComboBox CurrentWallpaperStyleComboBox;
+        private static ComboBox s_currentWallpaperStyleComboBox;
+
+        /// <summary>
+        /// We use this static reference so we can allow other types send errors for the main window to display.
+        /// </summary>
+        private static TextBlock s_currentUserPromptTextBlock;
+
+        /// <summary>
+        /// We use this static reference so we can allow other types send errors for the main window to display.
+        /// </summary>
+        private static WrapPanel s_currentWallpaperWrapPanel;
+
 
         /// <summary>
         /// This property exposes the user's current selection for the style of wallpaper they want (centered, tiled etc.)
@@ -31,13 +43,12 @@ namespace Rwall
         {
             get
             {
-                var style = (Wallpaper.Style)CurrentWallpaperStyleComboBox.SelectedItem;
+                var style = (Wallpaper.Style)s_currentWallpaperStyleComboBox.SelectedItem;
                 return style;
             }
         }
 
       
-
         /// <summary>
         /// CTOR
         /// </summary>
@@ -45,8 +56,10 @@ namespace Rwall
         {
             InitializeComponent();
 
-            //Make sure we set the static reference to the currently in use WallpaperStyleComboBox. THIS IS IMPORTANT.
-            CurrentWallpaperStyleComboBox = WallpaperStyleComboBox;
+            //Make sure we set the static references to the currently in use WallpaperStyleComboBox, UserPromptTextBlock and WallpaperWrapPanel. THIS IS IMPORTANT.
+            s_currentWallpaperStyleComboBox = WallpaperStyleComboBox;
+            s_currentUserPromptTextBlock = UserPromptTextBlock;
+            s_currentWallpaperWrapPanel = WallpaperWrapPanel;
 
             //set wallpaperstyle combobox items and select the first/default value. We reverse the order so the 'stretched' value is first in the list.
             WallpaperStyleComboBox.ItemsSource = Enum.GetValues(typeof(Wallpaper.Style)).Cast<Wallpaper.Style>().OrderByDescending(e => e);
@@ -68,7 +81,7 @@ namespace Rwall
             var screen = GetScreen(this);
 
             //resize wallpapers for the correct window size
-            foreach (WallpaperControl childWallpaperControl in WallPaperWrapPanel.Children)
+            foreach (WallpaperControl childWallpaperControl in WallpaperWrapPanel.Children)
             {
                 childWallpaperControl.Width = this.Width / Consts.WallpaperColumnSize;
                 childWallpaperControl.Height = this.Height / Consts.WallpaperColumnSize;
@@ -121,6 +134,7 @@ namespace Rwall
             return wallpaperUris.Take(20).ToList(); //only every get the top 20 wallpapers from reddit, or less.
         }
 
+
         /// <summary>
         /// This async method gets a list of all the Urls we want to use and creates wallpaper controls for each one on the main window.
         /// The images for each are loaded in seperate threads so they shouldn't block UI.
@@ -131,7 +145,7 @@ namespace Rwall
             SubredditNameTextBox.Text = subReddit;
 
             //flush out all old wallpapers.
-            WallPaperWrapPanel.Children.Clear();
+            WallpaperWrapPanel.Children.Clear();
 
             //show the loading prompt
             UserPromptTextBlock.Visibility = Visibility.Visible;
@@ -199,11 +213,34 @@ namespace Rwall
                 }
 
                 //Make sure we add this new wallpaper control to the container item.
-                WallPaperWrapPanel.Children.Add(wallpaperControl);
+                WallpaperWrapPanel.Children.Add(wallpaperControl);
 
                 //hide the loading prompt
                 UserPromptTextBlock.Visibility = Visibility.Collapsed;
             }
+        }
+
+
+        /// <summary>
+        /// This method allows other types to let the main window display web errors.
+        /// </summary>
+        public static void HandleWebException(WebException webException)
+        {
+            //flush out all old wallpapers.
+            s_currentWallpaperWrapPanel.Children.Clear();
+
+            String errorMessage = Consts.CannotConnectErrorMessage;
+
+            //catch http errors.
+            if (webException.Status == WebExceptionStatus.ProtocolError)
+            {
+                var httpResponse = (HttpWebResponse)webException.Response;
+                errorMessage = String.Format("Web Request Returned Error Code : {0}, {1}", (int)httpResponse.StatusCode, httpResponse.StatusCode);
+            }
+
+            //this isn't a server http error, can the user connect?
+            s_currentUserPromptTextBlock.Text = errorMessage;
+            s_currentUserPromptTextBlock.Visibility = Visibility.Visible;
         }
     }
 }

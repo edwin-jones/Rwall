@@ -25,7 +25,8 @@
             </EventTrigger>
         </Grid.Triggers>
 
-        <Rectangle x:Name="BackingRectangle" Fill="Black" />
-        <Image x:Name="Image" IsMouseDirectlyOverChanged="Image_IsMouseDirectlyOverChanged" MouseDown="Image_MouseDown"/>
+        <Rectangle x:Name="BackgroundRectangle" Fill="Black" />
+        <Image x:Name="Image" />
+        <Rectangle x:Name="ForegroundRectangle" IsMouseDirectlyOverChanged="ForeGround_IsMouseDirectlyOverChanged" Fill="Transparent"  MouseDown="ForeGround_MouseDown"/>
     </Grid>
 </UserControl>

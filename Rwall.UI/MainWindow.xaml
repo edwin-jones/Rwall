@@ -45,7 +45,7 @@
 
             <Rectangle Height="5" />
    
-            <WrapPanel x:Name="WallPaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
         <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic"></TextBlock>
     </Grid>

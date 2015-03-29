@@ -89,7 +89,7 @@ namespace Rwall.Shared
                 }
 
                 //Use an interop method to change the wallpaper.
-                Wallpaper.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, newWallpaperFileName, SPIF_SENDWININICHANGE);          
+                Wallpaper.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, newWallpaperFileName, SPIF_SENDWININICHANGE);
             }
         }
 
@@ -115,40 +115,40 @@ namespace Rwall.Shared
         {
             String address = String.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
             List<String> pictureUrlList = new List<string>();
- 
-                String redditXmlApiResponse = new WebClient().DownloadString(address);
-                XDocument xDocument = XDocument.Parse(redditXmlApiResponse);
-                IEnumerable<XElement> enumerable = xDocument.Descendants(XName.Get("description"));
-                foreach (XElement current in enumerable)
+
+            String redditXmlApiResponse = new WebClient().DownloadString(address);
+            XDocument xDocument = XDocument.Parse(redditXmlApiResponse);
+            IEnumerable<XElement> enumerable = xDocument.Descendants(XName.Get("description"));
+            foreach (XElement current in enumerable)
+            {
+                String[] redditXmlApiResponseElements = current.Value.ToString().Split(new Char[]
+				{
+					'"'
+				});
+                for (int i = 0; i < redditXmlApiResponseElements.Length; i++)
                 {
-                    String[] redditXmlApiResponseElements = current.Value.ToString().Split(new Char[]
-					{
-						'"'
-					});
-                    for (int i = 0; i < redditXmlApiResponseElements.Length; i++)
+                    if (redditXmlApiResponseElements[i].Contains("[link]"))
                     {
-                        if (redditXmlApiResponseElements[i].Contains("[link]"))
+                        string redditImageUrl = redditXmlApiResponseElements[i - 1];
+                        string redditImageUrlLowered = redditImageUrl.ToLower();
+
+                        if (redditImageUrl.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || redditImageUrl.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            string redditImageUrl = redditXmlApiResponseElements[i - 1];
-                            string redditImageUrlLowered = redditImageUrl.ToLower();
+                            pictureUrlList.Add(redditImageUrl);
+                        }
+                        //if we have a non direct imgur link THAT IS NOT AN ALBUM/GALLERY try to guess the correct URL.
+                        else if (redditImageUrlLowered.Contains(Consts.ImgurDotCom)
+                            && !redditImageUrlLowered.Contains(Consts.ImgurGalleryString)
+                            && !redditImageUrlLowered.Contains(Consts.ImgurAlbumString))
+                        {
+                            var imgurId = redditImageUrl.Split('/').Last();
+                            var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
 
-                            if (redditImageUrl.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || redditImageUrl.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                pictureUrlList.Add(redditImageUrl);
-                            }
-                            //if we have a non direct imgur link THAT IS NOT AN ALBUM/GALLERY try to guess the correct URL.
-                            else if (redditImageUrlLowered.Contains(Consts.ImgurDotCom)
-                                && !redditImageUrlLowered.Contains(Consts.ImgurGalleryString)
-                                && !redditImageUrlLowered.Contains(Consts.ImgurAlbumString))
-                            {
-                                var imgurId = redditImageUrl.Split('/').Last();
-                                var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
-
-                                pictureUrlList.Add(realImgurUrl);
-                            }
+                            pictureUrlList.Add(realImgurUrl);
                         }
                     }
                 }
+            }
 
             //Return the strings as URL/URIs.
             return pictureUrlList.Select(pic => new Uri(pic)).ToList();
