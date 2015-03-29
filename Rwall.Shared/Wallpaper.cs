@@ -1,123 +1,95 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Net;
-using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
+using System.Xml.Linq;
 
 namespace Rwall.Shared
 {
-   
-
+    /// <summary>
+    /// This static class exposes methods for changing the desktop wallpaper, as well as getting details of available images to use as wallpaper.
+    /// </summary>
     public static class Wallpaper
     {
-         public enum Style
-         {
-             Tiled,
-             Centered,
-             Stretched
-         }
+        /// <summary>
+        /// This enum describes the style of wallpaper.
+        /// </summary>
+        public enum Style
+        {
+            Tiled,
+            Centered,
+            Stretched
+        }
 
+        /// <summary>
+        /// Consts to define old windows api flags for interop call(s).
+        /// </summary>
         private const int SPI_SETDESKWALLPAPER = 20;
         private const int SPIF_UPDATEINIFILE = 1;
         private const int SPIF_SENDWININICHANGE = 2;
 
-        private readonly static Object LockObject = new Object();
+        /// <summary>
+        /// a static object to use to stop multithreaded calls using managed resources at the same time.
+        /// </summary>
+        private readonly static Object s_lockObject = new Object();
 
-        //cpp code import so we can change the wallpaper using the native windows API.
+        /// <summary>
+        /// Windows native code import so we can change the wallpaper using the native windows API.
+        /// </summary>
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
 
+
         /// <summary>
-        /// This function sets the wallpaper with the given web image and the givens style
+        /// This function sets the wallpaper with the given web image and the givens style by passing in that image's URL.
         /// </summary>
-        /// <param name="uri"></param>
-        /// <param name="style"></param>
         public static void Set(Uri uri, Wallpaper.Style style)
         {
-            lock (LockObject)
+            using (WebClient webclient = new WebClient())
             {
-                try
-                {
-                    Stream stream = new WebClient().OpenRead(uri.ToString());
-                    Image image = Image.FromStream(stream);
-                    string newWallpaperFileName = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
-                    image.Save(newWallpaperFileName, ImageFormat.Bmp);
-                    RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", true);
-                    switch (style)
-                    {
-                        case Wallpaper.Style.Tiled:
-                            registryKey.SetValue("WallpaperStyle", 1.ToString());
-                            registryKey.SetValue("TileWallpaper", 1.ToString());
-                            break;
-                        case Wallpaper.Style.Centered:
-                            registryKey.SetValue("WallpaperStyle", 1.ToString());
-                            registryKey.SetValue("TileWallpaper", 0.ToString());
-                            break;
-                        default:
-                            registryKey.SetValue("WallpaperStyle", 2.ToString());
-                            registryKey.SetValue("TileWallpaper", 0.ToString());
-                            break;
-                    }
-                    Wallpaper.SystemParametersInfo(20, 0, newWallpaperFileName, 3);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                    //if (!Program.AuthorisedToWriteToEventLog)
-                    //{
-                    //    throw ex;
-                    //}
-                    //EventLog.WriteEntry("Rwall", string.Format("{0}{1}{1}{2}{3}", new object[]
-                    //{
-                    //    "Error Setting Wallpaper",
-                    //    Environment.NewLine,
-                    //    "Error: ",
-                    //    ex.Message
-                    //}), EventLogEntryType.Error);
-                }
+                Stream stream = webclient.OpenRead(uri.ToString());
+                Set(stream, style);
             }
         }
 
-        public static void Set(BitmapImage bitmapImage, Wallpaper.Style style)
-        {
-            lock (LockObject)
-            {
-                var encoder = new PngBitmapEncoder(); // Or PngBitmapEncoder, or whichever encoder you want
-                encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
-                using (FileStream stream = new FileStream(Path.Combine(Path.GetTempPath(), "wallpaper.bmp"), FileMode.Create))
-                {
-                    encoder.Save(stream);
-                }
 
-                //Stream stream = new WebClient().OpenRead(uri.ToString());
-                //Image image = bitmap;
+        /// <summary>
+        /// Internal implementation of Wallpaper.Set.
+        /// </summary>
+        private static void Set(Stream imageStream, Wallpaper.Style style)
+        {
+            lock (s_lockObject)
+            {
+                //save the image in the temp folder from the given image data stream.
+                Image image = Image.FromStream(imageStream);
                 string newWallpaperFileName = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
-                //image.Save(newWallpaperFileName, ImageFormat.Bmp);
+                image.Save(newWallpaperFileName, ImageFormat.Bmp);
+
+                //Open the users desktop registry key so we can go in and change wallpaper settings.
                 RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", true);
                 switch (style)
                 {
                     case Wallpaper.Style.Tiled:
-                        registryKey.SetValue("WallpaperStyle", 1.ToString());
-                        registryKey.SetValue("TileWallpaper", 1.ToString());
+                        registryKey.SetValue(Consts.WallpaperStyleRegKey, Consts.TiledStyleWallpaperStyleRegValue);
+                        registryKey.SetValue(Consts.TileWallpaperRegKey, Consts.TiledStyleTileWallpaperRegValue);
                         break;
                     case Wallpaper.Style.Centered:
-                        registryKey.SetValue("WallpaperStyle", 1.ToString());
-                        registryKey.SetValue("TileWallpaper", 0.ToString());
+                        registryKey.SetValue(Consts.WallpaperStyleRegKey, Consts.CenteredStyleWallpaperStyleRegValue);
+                        registryKey.SetValue(Consts.TileWallpaperRegKey, Consts.CenteredStyleTileWallpaperRegValue);
                         break;
-                    default:
-                        registryKey.SetValue("WallpaperStyle", 2.ToString());
-                        registryKey.SetValue("TileWallpaper", 0.ToString());
+                    default: //the default is stretched!
+                        registryKey.SetValue(Consts.WallpaperStyleRegKey, Consts.StretchedStyleWallpaperStyleRegValue);
+                        registryKey.SetValue(Consts.TileWallpaperRegKey, Consts.StretchedStyleTileWallpaperRegValue);
                         break;
                 }
-                Wallpaper.SystemParametersInfo(20, 0, newWallpaperFileName, 3);
+
+                //Use an interop method to change the wallpaper.
+                Wallpaper.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, newWallpaperFileName, SPIF_SENDWININICHANGE);          
             }
         }
 
@@ -125,118 +97,60 @@ namespace Rwall.Shared
         /// <summary>
         /// This function will get a random wallpaper URL from a given subreddit.
         /// </summary>
-        public static Uri GetLatestWallpaperURL(string subreddit)
+        public static Uri GetLatestWallpaperUrl(String subreddit)
         {
-            string address = string.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit); //we can only get around 50 or so links or reddit starts cutting us off from the api.
-            List<string> list = new List<string>();
-            Uri result;
-            try
-            {
-                string text = new WebClient().DownloadString(address);
-                XDocument xDocument = XDocument.Parse(text);
-                IEnumerable<XElement> enumerable = xDocument.Descendants(XName.Get("description"));
-                foreach (XElement current in enumerable)
-                {
-                    string[] array = current.Value.ToString().Split(new char[]
-					{
-						'"'
-					});
-                    for (int i = 0; i < array.Length; i++)
-                    {
-                        if (array[i].Contains("[link]"))
-                        {
-                            string text2 = array[i - 1];
-                            if (text2.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || text2.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                list.Add(text2);
-                            }
-                        }
-                    }
-                }
-                if (list.Count == 0)
-                {
-                    throw new Exception("No wallpapers found at source.");
-                }
-                Random random = new Random();
-                result = new Uri(list[random.Next(list.Count - 1)]);
-            }
-            catch (Exception ex)
-            {
-                //if (Program.AuthorisedToWriteToEventLog)
-                //{
-                //    EventLog.WriteEntry("Rwall", string.Format("{0}{1}{1}{2}{3}", new object[]
-                //    {
-                //        "Error Getting Wallpaper",
-                //        Environment.NewLine,
-                //        "Error: ",
-                //        ex.Message
-                //    }), EventLogEntryType.Error);
-                //}
+            Random random = new Random();
 
-                throw ex;
-                result = null;
-            }
-            return result;
+            var candidates = GetLatestWallpaperURLs(subreddit);
+            var candidateIndex = random.Next(candidates.Count());
+
+            return candidates[candidateIndex];
         }
 
+
         /// <summary>
-        /// This method gets a the first X wallpapers from the given subreddit.
+        /// This method gets a the first X wallpapers from the given subreddit. Limited to 50 records by the Reddit API.
         /// </summary>
-        /// <param name="subreddit"></param>
-        /// <returns></returns>
         public static List<Uri> GetLatestWallpaperURLs(String subreddit)
         {
-            string address = string.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
-            List<string> pictureUrlList = new List<string>();
-            //Uri result;
-            try
-            {
-                string text = new WebClient().DownloadString(address);
-                XDocument xDocument = XDocument.Parse(text);
+            String address = String.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
+            List<String> pictureUrlList = new List<string>();
+ 
+                String redditXmlApiResponse = new WebClient().DownloadString(address);
+                XDocument xDocument = XDocument.Parse(redditXmlApiResponse);
                 IEnumerable<XElement> enumerable = xDocument.Descendants(XName.Get("description"));
                 foreach (XElement current in enumerable)
                 {
-                    string[] array = current.Value.ToString().Split(new char[]
+                    String[] redditXmlApiResponseElements = current.Value.ToString().Split(new Char[]
 					{
 						'"'
 					});
-                    for (int i = 0; i < array.Length; i++)
+                    for (int i = 0; i < redditXmlApiResponseElements.Length; i++)
                     {
-                        if (array[i].Contains("[link]"))
+                        if (redditXmlApiResponseElements[i].Contains("[link]"))
                         {
-                            string text2 = array[i - 1];
-                            if (text2.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || text2.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
+                            string redditImageUrl = redditXmlApiResponseElements[i - 1];
+                            string redditImageUrlLowered = redditImageUrl.ToLower();
+
+                            if (redditImageUrl.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || redditImageUrl.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
                             {
-                                pictureUrlList.Add(text2);
+                                pictureUrlList.Add(redditImageUrl);
+                            }
+                            //if we have a non direct imgur link THAT IS NOT AN ALBUM/GALLERY try to guess the correct URL.
+                            else if (redditImageUrlLowered.Contains(Consts.ImgurDotCom)
+                                && !redditImageUrlLowered.Contains(Consts.ImgurGalleryString)
+                                && !redditImageUrlLowered.Contains(Consts.ImgurAlbumString))
+                            {
+                                var imgurId = redditImageUrl.Split('/').Last();
+                                var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
+
+                                pictureUrlList.Add(realImgurUrl);
                             }
                         }
                     }
                 }
-                if (pictureUrlList.Count == 0)
-                {
-                    
-                }
-                
-            }
 
-             //log errors somehow!
-            catch (System.Xml.XmlException)
-            {
-
-            }
-            catch (System.Net.WebException wex) //catch http errors.
-            {
-                if (wex.Status == WebExceptionStatus.ProtocolError)
-                {
-                    String errorMessage = String.Format("Web Request Returned Error Code : {0}", ((HttpWebResponse)wex.Response).StatusCode);
-                    System.Windows.MessageBox.Show(Consts.AppErrorMessageTitle, errorMessage, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Exclamation);
-                }
-                else //this isn't an http error, something else should handle this.
-                {
-                    throw wex;
-                }
-            }
-
+            //Return the strings as URL/URIs.
             return pictureUrlList.Select(pic => new Uri(pic)).ToList();
         }
     }

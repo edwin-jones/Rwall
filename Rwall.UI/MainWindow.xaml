@@ -8,11 +8,12 @@
         Height="700" Width="1000" 
         MinHeight="700" MinWidth="1000"
         SizeChanged="Window_SizeChanged"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        KeyDown="Window_KeyDown">
     <Window.Background>
         <RadialGradientBrush GradientOrigin="0.5,0.5">
-            <GradientStop Color="DarkGray" Offset="0.0" />
-            <GradientStop Color="Gray" Offset="1" />
+            <GradientStop Color="Gray" Offset="0.0" />
+            <GradientStop Color="#404040" Offset="1" />
         </RadialGradientBrush>
     </Window.Background>
     <Window.Resources>
@@ -43,8 +44,9 @@
             </StackPanel>
 
             <Rectangle Height="5" />
-
+   
             <WrapPanel x:Name="WallPaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
+        <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic"></TextBlock>
     </Grid>
 </Window>

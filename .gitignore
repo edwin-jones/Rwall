@@ -1,4 +1,6 @@
 /Rwall/bin/Debug
+/Rwall.CLI/bin
+/Rwall.CLI/obj
 /Rwall/bin/Release
 /Rwall/obj/Release
 /Rwall/obj/Debug
