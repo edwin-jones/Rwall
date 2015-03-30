@@ -18,8 +18,8 @@
             <EventTrigger RoutedEvent="Image.MouseDown">
                 <BeginStoryboard>
                     <Storyboard>
-                        <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleX)" To="0.8" Duration="0:0:0.10" AutoReverse="True"/>
-                        <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleY)" To="0.8" Duration="0:0:0.10" AutoReverse="True"/>
+                        <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleX)" To="0.8" Duration="0:0:0.10" AutoReverse="True" FillBehavior="Stop"/>
+                        <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleY)" To="0.8" Duration="0:0:0.10" AutoReverse="True" FillBehavior="Stop"/>
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>

@@ -101,7 +101,7 @@ namespace Rwall.Shared
         {
             Random random = new Random();
 
-            var candidates = GetLatestWallpaperURLs(subreddit);
+            var candidates = GetLatestWallpaperURLs(subreddit, Consts.DefaultWallpaperUrlLimit);
             var candidateIndex = random.Next(candidates.Count());
 
             return candidates[candidateIndex];
@@ -109,41 +109,48 @@ namespace Rwall.Shared
 
 
         /// <summary>
-        /// This method gets a the first X wallpapers from the given subreddit. Limited to 50 records by the Reddit API.
+        /// This method gets a the first X wallpapers from the given subreddit. Limited to 50 records by the Reddit API, by default returns first 20 links.
         /// </summary>
-        public static List<Uri> GetLatestWallpaperURLs(String subreddit)
+        public static List<Uri> GetLatestWallpaperURLs(String subreddit, Int32 UriLimit)
         {
             String address = String.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
             List<String> pictureUrlList = new List<string>();
 
+            //get a response from the reddit xml api as a string and parse it.
             String redditXmlApiResponse = new WebClient().DownloadString(address);
             XDocument xDocument = XDocument.Parse(redditXmlApiResponse);
-            IEnumerable<XElement> enumerable = xDocument.Descendants(XName.Get("description"));
-            foreach (XElement current in enumerable)
+            IEnumerable<XElement> descriptionElement = xDocument.Descendants(XName.Get("description"));
+
+            foreach (XElement element in descriptionElement)
             {
-                String[] redditXmlApiResponseElements = current.Value.ToString().Split(new Char[]
-				{
-					'"'
-				});
+                //get all the elements inside the description element by splitting on double quotes.
+                String[] redditXmlApiResponseElements = element.Value.ToString().Split(new Char[]{'"'});
+
                 for (int i = 0; i < redditXmlApiResponseElements.Length; i++)
                 {
-                    if (redditXmlApiResponseElements[i].Contains("[link]"))
+                    //if we find a node that contains a link, drill down further unless we have already hit our limit.
+                    if (redditXmlApiResponseElements[i].Contains("[link]") && pictureUrlList.Count < UriLimit)
                     {
                         string redditImageUrl = redditXmlApiResponseElements[i - 1];
                         string redditImageUrlLowered = redditImageUrl.ToLower();
 
-                        if (redditImageUrl.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || redditImageUrl.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
+                        //If the link is directly to a jpg or png, add it to the return collection immediately and continue.
+                        if (redditImageUrlLowered.EndsWith(".jpg") || redditImageUrlLowered.EndsWith(".png"))
                         {
                             pictureUrlList.Add(redditImageUrl);
+                            continue;
                         }
+
                         //if we have a non direct imgur link THAT IS NOT AN ALBUM/GALLERY try to guess the correct URL.
                         else if (redditImageUrlLowered.Contains(Consts.ImgurDotCom)
                             && !redditImageUrlLowered.Contains(Consts.ImgurGalleryString)
                             && !redditImageUrlLowered.Contains(Consts.ImgurAlbumString))
                         {
-                            var imgurId = redditImageUrl.Split('/').Last();
-                            var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
+                            //imgur ids should be the last 7 characters of the string BEFORE the file extension and after the last slash (/)
+                            var imgurId = redditImageUrl.Split('/').Last().Substring(0, Consts.ImgurIdLength);
 
+                            //calculate the true direct imgur URL from the imgur id, then add it to the return collection.
+                            var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
                             pictureUrlList.Add(realImgurUrl);
                         }
                     }

@@ -130,7 +130,7 @@ namespace Rwall
         /// </summary>
         private List<Uri> GetWallpaperUris(String subReddit)
         {
-            var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit);
+            var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit, Consts.DefaultWallpaperUrlLimit);
             return wallpaperUris.Take(20).ToList(); //only every get the top 20 wallpapers from reddit, or less.
         }
 

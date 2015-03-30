@@ -67,5 +67,10 @@ namespace Rwall.Shared
         /// The number to divide a window width/height by to make sure we always have 20 wallpapers on screen on any resize. (5 columns x 4 rows)
         /// </summary>
         public const Int32 WallpaperColumnSize = 6;
+
+        /// <summary>
+        /// The default number of wallpapers to get (out of a max of 50 ish) at one time.
+        /// </summary>
+        public const Int32 DefaultWallpaperUrlLimit = 20;
     }
 }
