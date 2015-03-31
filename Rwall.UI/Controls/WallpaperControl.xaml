@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Cursor="Hand"
-             Margin="10">
+             Margin="5">
     <UserControl.Resources>
 
     </UserControl.Resources>

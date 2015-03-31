@@ -56,7 +56,7 @@ namespace Rwall.Shared
         /// This character appended on any imgur URL (before the file extension) will return a smaller preview of that image.
         /// Should always be lower case for easy comparisons.
         /// </summary>
-        public const char ImgurApiPreviewChar = 'm';
+        public const char ImgurApiPreviewChar = 'l';
 
         /// <summary>
         /// The length of an imgur id, 7 characters. If it has 8 or more, it is a preview etc.
@@ -66,11 +66,11 @@ namespace Rwall.Shared
         /// <summary>
         /// The number to divide a WallpaperControl width/height by to make sure we always have X wallpapers on screen on any resize.
         /// </summary>
-        public const Int32 WallpaperColumnSize = 7;
+        public const Int32 WallpaperColumnSize = 6;
 
         /// <summary>
         /// The default number of wallpapers to get (out of a max of 50 ish) at one time.
         /// </summary>
-        public const Int32 DefaultWallpaperUrlLimit = 24;
+        public const Int32 DefaultWallpaperUrlLimit = 20;
     }
 }
