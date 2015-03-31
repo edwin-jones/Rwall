@@ -2,6 +2,7 @@
 using Rwall.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,6 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using Forms = System.Windows.Forms;
 
 namespace Rwall
@@ -235,6 +237,18 @@ namespace Rwall
             //this isn't a server http error, can the user connect?
             s_currentUserPromptTextBlock.Text = errorMessage;
             s_currentUserPromptTextBlock.Visibility = Visibility.Visible;
+        }
+
+
+        /// <summary>
+        /// Hyperlink navigation handler
+        /// </summary>
+        void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            using (Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri)))
+            {
+                e.Handled = true;
+            }
         }
     }
 }

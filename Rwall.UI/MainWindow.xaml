@@ -16,18 +16,29 @@
             <GradientStop Color="#404040" Offset="1" />
         </RadialGradientBrush>
     </Window.Background>
+    <Window.Resources>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
 
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" >
             <Rectangle Height="10"/>
 
-            <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Click on an image to set it as your wallpaper with the selected settings. This may take a few seconds.</TextBlock>
-            <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Use the textbox below to search different subreddits.</TextBlock>
+            <TextBlock  Style="{StaticResource TextBlockStyle}">Click on an image to set it as your wallpaper with the selected settings. This may take a few seconds.</TextBlock>
+            <TextBlock  Style="{StaticResource TextBlockStyle}">
+                Use the textbox below to search different subreddits from 
+                <Hyperlink Foreground="White" NavigateUri="http://www.reddit.com" RequestNavigate="Hyperlink_RequestNavigate">Reddit.</Hyperlink>
+            </TextBlock>
 
             <Rectangle Height="10"/>
 
@@ -40,7 +51,7 @@
             <Rectangle Height="10" />
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock FontSize="16" Foreground="White">Wallpaper Style:</TextBlock>
+                <TextBlock  Style="{StaticResource TextBlockStyle}">Wallpaper Style:</TextBlock>
                 <Rectangle Width="10" />
                 <ComboBox Name="WallpaperStyleComboBox" Width="100" />
             </StackPanel>
@@ -48,7 +59,11 @@
             <Rectangle Height="5" />
         </StackPanel>
         <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"/>
-        <TextBlock Name="UserPromptTextBlock" FontSize="25" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
+        <TextBlock Name="UserPromptTextBlock" FontSize="25" Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" 
                    FontWeight="Bold" FontStyle="Italic" Grid.RowSpan="2" TextWrapping="Wrap"/>
+
+        <TextBlock Style="{StaticResource TextBlockStyle}" Grid.Row="2" Margin="5" >
+            Created by <Hyperlink Foreground="White" NavigateUri="http://edwinjones.me.uk" RequestNavigate="Hyperlink_RequestNavigate">Edwin Jones</Hyperlink>
+        </TextBlock>
     </Grid>
 </Window>

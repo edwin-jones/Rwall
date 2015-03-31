@@ -64,13 +64,12 @@ namespace Rwall.Shared
         public static Int32 ImgurIdLength = 7;
 
         /// <summary>
-        /// The number to divide a window width/height by to make sure we always have 20 wallpapers on screen on any resize. (5 columns x 4 rows)
         /// </summary>
-        public const Int32 WallpaperColumnSize = 6;
+        public const Int32 WallpaperColumnSize = 7;
 
         /// <summary>
         /// The default number of wallpapers to get (out of a max of 50 ish) at one time.
         /// </summary>
-        public const Int32 DefaultWallpaperUrlLimit = 20;
+        public const Int32 DefaultWallpaperUrlLimit = 24;
     }
 }
