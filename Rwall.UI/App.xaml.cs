@@ -20,9 +20,10 @@ namespace Rwall
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            //if app is already running, don't start up another instance!
+            //if app is already running, don't start up another instance! (unless we are debugging)
             m_mutex = new Mutex(false, Consts.AppName);
-            
+         
+#if !DEBUG
             if (!m_mutex.WaitOne(0, false))
             {            
                 MessageBox.Show(Consts.AppName + " is already running.", Consts.AppErrorMessageTitle, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
@@ -30,7 +31,7 @@ namespace Rwall
                 m_mutex.Dispose();
                 Application.Current.Shutdown();
             }
-            
+#endif
 
             base.OnStartup(e);
         }

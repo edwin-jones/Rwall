@@ -53,10 +53,10 @@ namespace Rwall.Shared
         public const String ImgurGalleryString = "/gallery/";
 
         /// <summary>
-        /// This character appended on any imgur URL (before the file extension) will return a smaller preview of that image (l == large preview).
+        /// This character appended on any imgur URL (before the file extension) will return a smaller preview of that image.
         /// Should always be lower case for easy comparisons.
         /// </summary>
-        public const char ImgurLargePreviewApiChar = 'l';
+        public const char ImgurApiPreviewChar = 'm';
 
         /// <summary>
         /// The length of an imgur id, 7 characters. If it has 8 or more, it is a preview etc.

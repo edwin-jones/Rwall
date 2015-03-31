@@ -190,7 +190,7 @@ namespace Rwall
                    //get the index of the last '.' in the string, that is the start of the file extension
                    var previewCharInsertionIndex = pictureUri.OriginalString.LastIndexOf('.');
 
-                   var newString = pictureUri.OriginalString.Insert(previewCharInsertionIndex, Consts.ImgurLargePreviewApiChar.ToString());
+                   var newString = pictureUri.OriginalString.Insert(previewCharInsertionIndex, Consts.ImgurApiPreviewChar.ToString());
                    wallpaperControl.Image.Source = new BitmapImage(new Uri(newString));
                 }
                 else
