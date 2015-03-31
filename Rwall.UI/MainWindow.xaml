@@ -26,7 +26,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" >
             <Rectangle Height="10"/>
 
-            <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Click on an image to set it as your wallpaper with the selected settings.</TextBlock>
+            <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Click on an image to set it as your wallpaper with the selected settings. This may take a few seconds.</TextBlock>
             <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Use the textbox below to search different subreddits.</TextBlock>
 
             <Rectangle Height="10"/>
@@ -48,7 +48,7 @@
             <Rectangle Height="5" />
         </StackPanel>
         <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"/>
-        <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   FontWeight="Bold" FontStyle="Italic" Grid.RowSpan="2"/>
+        <TextBlock Name="UserPromptTextBlock" FontSize="25" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   FontWeight="Bold" FontStyle="Italic" Grid.RowSpan="2" TextWrapping="Wrap"/>
     </Grid>
 </Window>

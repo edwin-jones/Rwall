@@ -130,8 +130,9 @@ namespace Rwall
         /// </summary>
         private List<Uri> GetWallpaperUris(String subReddit)
         {
+            //only every get the top 20 wallpapers from reddit, or less.
             var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit, Consts.DefaultWallpaperUrlLimit);
-            return wallpaperUris.Take(20).ToList(); //only every get the top 20 wallpapers from reddit, or less.
+            return wallpaperUris;
         }
 
 
@@ -149,13 +150,14 @@ namespace Rwall
 
             //show the loading prompt
             UserPromptTextBlock.Visibility = Visibility.Visible;
-            UserPromptTextBlock.Text = "Getting a list of images, this may some time...";
+            UserPromptTextBlock.Text = "Getting a list of images, this may take some time...";
 
             List<Uri> pictureUris = new List<Uri>();
             List<BitmapImage> pictureBitmaps = new List<BitmapImage>();
 
             //get the screen object so we can size pictures properly if the window is maximized
             var screen = GetScreen(this);
+
             try
             {
                 //Get a list of the available wallpaper pictures async.
@@ -166,17 +168,9 @@ namespace Rwall
                     UserPromptTextBlock.Text = Consts.NoWallpapersFoundErrorMessage;
                 }
             }
-            catch (System.Net.WebException wex) //catch http errors.
+            catch (System.Net.WebException webException) //catch web errors.
             {
-                if (wex.Status == WebExceptionStatus.ProtocolError)
-                {
-                    String errorMessage = String.Format("Web Request Returned Error Code : {0}", (int)((HttpWebResponse)wex.Response).StatusCode);
-                    UserPromptTextBlock.Text = errorMessage;
-                }
-                else //this isn't a server http error, can the user connect?
-                {
-                    UserPromptTextBlock.Text = Consts.CannotConnectErrorMessage;
-                }
+                HandleWebException(webException);
             }
 
             foreach (var pictureUri in pictureUris) //create a new wallpaper control for each picture URL and show it on screen.
