@@ -64,6 +64,7 @@ namespace Rwall.Shared
         public static Int32 ImgurIdLength = 7;
 
         /// <summary>
+        /// The number to divide a WallpaperControl width/height by to make sure we always have X wallpapers on screen on any resize.
         /// </summary>
         public const Int32 WallpaperColumnSize = 7;
 
