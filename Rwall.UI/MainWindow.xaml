@@ -16,14 +16,16 @@
             <GradientStop Color="#404040" Offset="1" />
         </RadialGradientBrush>
     </Window.Background>
-    <Window.Resources>
-        
-    </Window.Resources>
 
     <Grid x:Name="MainGrid">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="0" >
             <Rectangle Height="10"/>
-            
+
             <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Click on an image to set it as your wallpaper with the selected settings.</TextBlock>
             <TextBlock  HorizontalAlignment="Center" FontSize="16" Foreground="White">Use the textbox below to search different subreddits.</TextBlock>
 
@@ -42,11 +44,10 @@
                 <Rectangle Width="10" />
                 <ComboBox Name="WallpaperStyleComboBox" Width="100" />
             </StackPanel>
-
+            
             <Rectangle Height="5" />
-   
-            <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
-        <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic"></TextBlock>
+        <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"/>
+        <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
     </Grid>
 </Window>
