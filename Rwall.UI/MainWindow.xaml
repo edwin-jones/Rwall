@@ -49,5 +49,6 @@
         </StackPanel>
         <WrapPanel x:Name="WallpaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"/>
         <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   FontWeight="Bold" FontStyle="Italic" Grid.RowSpan="2"/>
     </Grid>
 </Window>
