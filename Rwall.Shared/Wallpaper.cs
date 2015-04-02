@@ -147,11 +147,16 @@ namespace Rwall.Shared
                             && !redditImageUrlLowered.Contains(Consts.ImgurAlbumString))
                         {
                             //imgur ids should be the last 7 characters of the string BEFORE the file extension and after the last slash (/)
-                            var imgurId = redditImageUrl.Split('/').Last().Substring(0, Consts.ImgurIdLength);
+                            var imgurId = redditImageUrl.Split('/').Last();
 
-                            //calculate the true direct imgur URL from the imgur id, then add it to the return collection.
-                            var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
-                            pictureUrlList.Add(realImgurUrl);
+                            if (imgurId.Length >= Consts.ImgurIdLength) //CHECK this isn't a really short imgur url, or substring() calls may fail.
+                            {
+                                //calculate the true direct imgur URL from the imgur id, then add it to the return collection.
+                                imgurId = imgurId.Substring(0, Consts.ImgurIdLength);
+                              
+                                var realImgurUrl = String.Format("https://i.imgur.com/{0}.png", imgurId);
+                                pictureUrlList.Add(realImgurUrl);
+                            }
                         }
                     }
                 }

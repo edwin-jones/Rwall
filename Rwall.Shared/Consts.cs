@@ -43,7 +43,7 @@ namespace Rwall.Shared
         public const String ImgurDotCom = "imgur.com";
 
         /// <summary>
-        /// If an imgur link contains this URL is is an albumn, NOT an image!
+        /// If an imgur link contains this URL is is an album, NOT an image!
         /// </summary>
         public const String ImgurAlbumString = "/a/";
 
