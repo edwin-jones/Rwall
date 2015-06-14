@@ -113,7 +113,7 @@ namespace Rwall.Shared
         /// </summary>
         public static List<Uri> GetLatestWallpaperURLs(String subreddit)
         {
-            String address = String.Format("http://www.reddit.com/r/{0}.xml?limit=50", subreddit);
+            String address = String.Format("http://www.reddit.com/r/{0}.xml?limit={1}", subreddit, Consts.MaxWallpapersPerRequest);
             List<String> pictureUrlList = new List<string>();
  
                 String redditXmlApiResponse = new WebClient().DownloadString(address);

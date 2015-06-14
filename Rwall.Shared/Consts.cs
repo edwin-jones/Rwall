@@ -67,5 +67,15 @@ namespace Rwall.Shared
         /// The number to divide a window width/height by to make sure we always have 20 wallpapers on screen on any resize. (5 columns x 4 rows)
         /// </summary>
         public const Int32 WallpaperColumnSize = 6;
+
+        /// <summary>
+        /// The maximum amount of request items reddit will return to us at once without an error.
+        /// </summary>
+        public const Int32 MaxWallpapersPerRequest = 100;
+
+        /// <summary>
+        /// The amount of wallpapers we intend to show on screen per request.
+        /// </summary>
+        public const Int32 WallpapersToDisplayPerRequest = 20;
     }
 }

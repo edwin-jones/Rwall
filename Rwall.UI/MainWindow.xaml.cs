@@ -36,7 +36,16 @@ namespace Rwall
             }
         }
 
-      
+        /// <summary>
+        /// This index is used to figure out which 'slice' of the top 'x' links of the current subreddit we want to use.
+        /// </summary>
+        private Int32 startIndex = 0;
+
+        /// <summary>
+        /// This string keeps a record of the subreddit we visited on the last request. Empty if no previous requests made this session.
+        /// </summary>
+        private String lastSubreddit = String.Empty;
+
 
         /// <summary>
         /// CTOR
@@ -44,6 +53,21 @@ namespace Rwall
         public MainWindow()
         {
             InitializeComponent();
+
+            //count how many monitors the user has and add this info to the relevant dropdown.
+            Int32 monitorCount = System.Windows.Forms.SystemInformation.MonitorCount;
+
+            //MonitorIndexComboBox.Items.Clear(); CODE NOT READY FOR USE, FIND BETTER WAY TO DO MULTI MONITOR?
+
+            //MonitorIndexComboBox.Items.Add("All");
+
+            //if (RunningWindows8())
+            //{
+            //    for (int i = 0; i < System.Windows.Forms.SystemInformation.MonitorCount; i++)
+            //    {
+            //        MonitorIndexComboBox.Items.Add(i + 1);
+            //    }
+            //}
 
             //Make sure we set the static reference to the currently in use WallpaperStyleComboBox. THIS IS IMPORTANT.
             CurrentWallpaperStyleComboBox = WallpaperStyleComboBox;
@@ -54,6 +78,26 @@ namespace Rwall
             WallpaperStyleComboBox.SelectedIndex = 0;
 
             GetWallpapersAsync(Consts.DefaultSubreddit);
+        }
+
+
+        /// <summary>
+        /// This method tells the user if the current OS is windows 8/higher or not.
+        /// </summary>
+        /// <returns></returns>
+        private Boolean RunningWindows8()
+        {
+            Version win8version = new Version(6, 2, 9200, 0);
+
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT &&
+                Environment.OSVersion.Version >= win8version)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -115,10 +159,23 @@ namespace Rwall
         /// <summary>
         /// This function get's a list of wallpaper URIs from the given subreddit.
         /// </summary>
-        private List<Uri> GetWallpaperUris(String subReddit)
+        private List<Uri> GetWallpaperUris(String subReddit, bool getNextSet = false)
         {
+            lastSubreddit = subReddit;
             var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit);
-            return wallpaperUris.Take(20).ToList(); //only every get the top 20 wallpapers from reddit, or less.
+
+            //do some logic to see if we should get the next set of pictures from this subreddit.
+            if(string.Equals(lastSubreddit, subReddit, StringComparison.InvariantCultureIgnoreCase))
+            {
+                startIndex += Consts.WallpapersToDisplayPerRequest;
+
+                if (startIndex >= wallpaperUris.Count)
+                {
+                    startIndex = 0;
+                }
+            }
+     
+            return wallpaperUris.Skip(startIndex).Take(Consts.WallpapersToDisplayPerRequest).ToList(); //only every get the top 20 wallpapers from reddit, or less.
         }
 
         /// <summary>

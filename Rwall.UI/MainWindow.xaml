@@ -41,12 +41,16 @@
                 <TextBlock FontSize="16" Foreground="White">Wallpaper Style:</TextBlock>
                 <Rectangle Width="10" />
                 <ComboBox Name="WallpaperStyleComboBox" Width="100" />
+                <!--<Rectangle Width="10" />
+                <TextBlock FontSize="16" Foreground="White">Monitor:</TextBlock>
+                <Rectangle Width="10" />
+                <ComboBox Name="MonitorIndexComboBox" Width="100" />-->
             </StackPanel>
 
             <Rectangle Height="5" />
    
             <WrapPanel x:Name="WallPaperWrapPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
-        <TextBlock Name="UserPromptTextBlock" FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic"></TextBlock>
+        <TextBlock Name="UserPromptTextBlock" FontSize="30" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic"></TextBlock>
     </Grid>
 </Window>
