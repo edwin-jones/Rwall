@@ -160,8 +160,7 @@ namespace Rwall
         /// This function get's a list of wallpaper URIs from the given subreddit.
         /// </summary>
         private List<Uri> GetWallpaperUris(String subReddit, bool getNextSet = false)
-        {
-            lastSubreddit = subReddit;
+        {    
             var wallpaperUris = Wallpaper.GetLatestWallpaperURLs(subReddit);
 
             //do some logic to see if we should get the next set of pictures from this subreddit.
@@ -174,7 +173,13 @@ namespace Rwall
                     startIndex = 0;
                 }
             }
-     
+            else
+            {
+                startIndex = 0;
+            }
+
+            lastSubreddit = subReddit;
+
             return wallpaperUris.Skip(startIndex).Take(Consts.WallpapersToDisplayPerRequest).ToList(); //only every get the top 20 wallpapers from reddit, or less.
         }
 
